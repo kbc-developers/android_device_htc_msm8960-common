@@ -15,14 +15,9 @@ LOCAL_SHARED_LIBRARIES := \
     libutils \
     libbinder \
     libcutils \
-    libhardware_legacy \
-    librilutils
+    libhardware_legacy
 
 LOCAL_CFLAGS :=
-
-ifeq ($(BOARD_RIL_NO_CELLINFOLIST),true)
-LOCAL_CFLAGS += -DRIL_NO_CELL_INFO_LIST
-endif
 
 LOCAL_MODULE:= libril
 
