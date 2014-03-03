@@ -37,8 +37,8 @@ static struct light_state_t g_notification;
 static struct light_state_t g_battery;
 static int g_backlight = 255;
 
-#ifdef HTC_DLXJ
-char const*const HTL21_LED_FILE = "/sys/class/leds/indicator/ModeRGB";
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
+char const*const HTLJP_LED_FILE = "/sys/class/leds/indicator/ModeRGB";
 #else
 char const*const AMBER_LED_FILE = "/sys/class/leds/amber/brightness";
 char const*const GREEN_LED_FILE = "/sys/class/leds/green/brightness";
@@ -52,7 +52,7 @@ char const*const BUTTON_CURRENTS_FILE = "/sys/class/leds/button-backlight/curren
 char const*const LCD_BACKLIGHT_FILE = "/sys/class/leds/lcd-backlight/brightness";
 
 enum {
-#ifdef HTC_DLXJ
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
 	LED_ON,
 #else
 	LED_AMBER,
@@ -68,7 +68,7 @@ enum {
 };
 
 enum {
-#ifdef HTC_DLXJ
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
 	BLINK_MODE_OFF = 1,
 	BLINK_MODE_NORMAL = 2,
 #else
@@ -100,7 +100,7 @@ static int write_int(const char* path, int value) {
 	return written == -1 ? -errno : 0;
 }
 
-#ifdef HTC_DLXJ
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
 static int write_char(const char* path, char* value) {
 	int fd;
 	int bytes, written;
@@ -137,7 +137,7 @@ static void set_speaker_light_locked(struct light_device_t *dev, struct light_st
 	unsigned int color = LED_BLANK;
 	unsigned int blinkMode = BLINK_MODE_OFF;
 
-#ifdef HTC_DLXJ
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
 	char mcolor[8];
 
 	if ((colorRGB >> 8) & 0xFF) color = LED_ON;
@@ -168,10 +168,10 @@ static void set_speaker_light_locked(struct light_device_t *dev, struct light_st
 	switch (state->flashMode) {
 		case LIGHT_FLASH_TIMED:
 			switch (color) {
-#ifdef HTC_DLXJ
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
 				case LED_ON:
 					sprintf(mcolor, "%d%06x", blinkMode, colorRGB);
-					write_char(HTL21_LED_FILE, mcolor);
+					write_char(HTLJP_LED_FILE, mcolor);
 					break;
 #else
 				case LED_AMBER:
@@ -188,8 +188,8 @@ static void set_speaker_light_locked(struct light_device_t *dev, struct light_st
 					break;
 #endif
 				case LED_BLANK:
-#ifdef HTC_DLXJ
-					write_char(HTL21_LED_FILE, "0");
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
+					write_char(HTLJP_LED_FILE, "0");
 #else
 					write_int(AMBER_BLINK_FILE, 0);
 					write_int(GREEN_BLINK_FILE, 0);
@@ -202,10 +202,10 @@ static void set_speaker_light_locked(struct light_device_t *dev, struct light_st
 			break;
 		case LIGHT_FLASH_NONE:
 			switch (color) {
-#ifdef HTC_DLXJ
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
 				case LED_ON:
 					sprintf(mcolor, "1%06x", colorRGB);
-					write_char(HTL21_LED_FILE, mcolor);
+					write_char(HTLJP_LED_FILE, mcolor);
 					break;
 #else
 				case LED_AMBER:
@@ -222,8 +222,8 @@ static void set_speaker_light_locked(struct light_device_t *dev, struct light_st
 					break;
 #endif
 				case LED_BLANK:
-#ifdef HTC_DLXJ
-					write_char(HTL21_LED_FILE, "0");
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
+					write_char(HTLJP_LED_FILE, "0");
 #else
 					write_int(AMBER_LED_FILE, 0);
 					write_int(GREEN_LED_FILE, 0);
@@ -242,7 +242,7 @@ static void set_speaker_light_locked_dual(struct light_device_t *dev, struct lig
 	unsigned int bcolor = LED_BLANK;
 	unsigned int blinkMode = BLINK_MODE_LONG;
 
-#ifdef HTC_DLXJ
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
 	char mcolor[8];
 
 	if ((bcolorRGB >> 8) & 0xFF) bcolor = LED_ON;
@@ -253,10 +253,10 @@ static void set_speaker_light_locked_dual(struct light_device_t *dev, struct lig
 #endif
 
 	switch (bcolor) {
-#ifdef HTC_DLXJ
+#if defined(HTC_DLXJ) || defined(HTC_M7WLJ)
 		case LED_ON:
 			sprintf(mcolor, "4%06x", bcolorRGB);
-			write_char(HTL21_LED_FILE, mcolor);
+			write_char(HTLJP_LED_FILE, mcolor);
 			break;
 #else
 		case LED_AMBER:
