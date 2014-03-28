@@ -75,8 +75,7 @@ BOARD_EGL_CFG := device/htc/msm8960-common/configs/egl.cfg
 TARGET_PROVIDES_LIBLIGHT := true
 
 # Power
-TARGET_USES_CM_POWERHAL := true
-TARGET_POWERHAL_NO_TOUCH_BOOST := true
+TARGET_POWERHAL_VARIANT := qcom
 
 # SELinux
 BOARD_SEPOLICY_DIRS += \
