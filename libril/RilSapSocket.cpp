@@ -85,9 +85,7 @@ void RilSapSocket::sOnUnsolicitedResponse(int unsolResponse,
        const void *data,
        size_t datalen) {
     RilSapSocket *sap_socket = getSocketById(RIL_SOCKET_1);
-    if(sap_socket){
-        sap_socket->onUnsolicitedResponse(unsolResponse, (void *)data, datalen);
-    }
+    sap_socket->onUnsolicitedResponse(unsolResponse, (void *)data, datalen);
 }
 #endif
 
@@ -250,7 +248,7 @@ void log_hex(const char *who, const uint8_t *buffer, int length) {
     int per_line = 0;
 
     do {
-        dest += snprintf(out, sizeof(out), "%8.8s [%8.8x] ", who, source);
+        dest += sprintf(out, "%8.8s [%8.8x] ", who, source);
         for(; source < length && dest_len - dest > 3 && per_line < BYTES_PER_LINE; source++,
         per_line ++) {
             out[dest++] = HEX_HIGH(buffer[source]);
@@ -302,26 +300,25 @@ void RilSapSocket::onRequestComplete(RIL_Token t, RIL_Errno e, void *response,
     SapSocketRequest* request= (SapSocketRequest*)t;
     MsgHeader *hdr = request->curr;
 
-    MsgHeader rsp;
-    rsp.token = request->curr->token;
-    rsp.type = MsgType_RESPONSE;
-    rsp.id = request->curr->id;
-    rsp.error = (Error)e;
-    rsp.payload = (pb_bytes_array_t *)calloc(1, sizeof(pb_bytes_array_t) + response_len);
-    if (!rsp.payload) {
-        RLOGE("onRequestComplete: OOM");
-    } else {
-        if (response && response_len > 0) {
+    if (response && response_len > 0) {
+        MsgHeader rsp;
+        rsp.token = request->curr->token;
+        rsp.type = MsgType_RESPONSE;
+        rsp.id = request->curr->id;
+        rsp.error = (Error)e;
+        rsp.payload = (pb_bytes_array_t *)calloc(1,
+                sizeof(pb_bytes_array_t) + response_len);
+        if (!rsp.payload) {
+            RLOGE("onRequestComplete: OOM");
+        } else {
             memcpy(rsp.payload->bytes, response, response_len);
             rsp.payload->size = response_len;
-        } else {
-            rsp.payload->size = 0;
+
+            RLOGE("Token:%d, MessageId:%d", hdr->token, hdr->id);
+
+            sendResponse(&rsp);
+            free(rsp.payload);
         }
-
-        RLOGE("Token:%d, MessageId:%d", hdr->token, hdr->id);
-
-        sendResponse(&rsp);
-        free(rsp.payload);
     }
 
     // Deallocate SapSocketRequest
